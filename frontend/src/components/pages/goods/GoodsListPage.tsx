@@ -24,7 +24,17 @@ import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
 import { Link } from "react-router";
 
 // Mock data
-const mockGoods = [
+
+interface Good {
+	id: number;
+	name: string;
+	quantity: number;
+	price: number;
+	category: string;
+	status: "High" | "Medium" | "Low";
+}
+
+const mockGoods: Good[] = [
 	{
 		id: 1,
 		name: "Laptop Pro",
@@ -83,16 +93,17 @@ export default function GoodsListPage() {
 	const [user, setUser] = useState<User | null>(null);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [categoryFilter, setCategoryFilter] = useState("all");
-	const [goods, setGoods] = useState(mockGoods);
+	const [goods, setGoods] = useState<Good[] | null>(null);
 
 	useEffect(() => {
 		const userData = localStorage.getItem("user");
 		if (userData) {
 			setUser(JSON.parse(userData));
 		}
+		setGoods(mockGoods); // Set mock data initially
 	}, []);
 
-	const filteredGoods = goods.filter((good) => {
+	const filteredGoods = goods?.filter((good) => {
 		const matchesSearch = good.name
 			.toLowerCase()
 			.includes(searchTerm.toLowerCase());
@@ -101,7 +112,7 @@ export default function GoodsListPage() {
 		return matchesSearch && matchesCategory;
 	});
 
-	const categories = Array.from(new Set(goods.map((good) => good.category)));
+	const categories = Array.from(new Set(goods?.map((good) => good.category)));
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -187,7 +198,7 @@ export default function GoodsListPage() {
 			<Card>
 				<CardHeader>
 					<CardTitle>
-						Goods List ({filteredGoods.length} items)
+						Goods List ({filteredGoods?.length} items)
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -205,7 +216,7 @@ export default function GoodsListPage() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{filteredGoods.map((good) => (
+								{filteredGoods?.map((good) => (
 									<TableRow key={good.id}>
 										<TableCell className="font-medium">
 											{good.id}
