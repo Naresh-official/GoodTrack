@@ -42,7 +42,7 @@ export function Layout() {
 			<div className="h-screen">
 				<Sidebar />
 			</div>
-			<main className="p-6 flex-1 overflow-y-auto">
+			<main className="p-6 pt-16 lg:pt-6 flex-1 overflow-y-auto">
 				<Outlet />
 			</main>
 		</div>

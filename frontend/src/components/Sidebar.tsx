@@ -95,7 +95,7 @@ export function Sidebar() {
 			{/* Mobile overlay */}
 			{isMobileOpen && (
 				<div
-					className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+					className="lg:hidden fixed inset-0 bg-black/20 bg-opacity-50 z-40"
 					onClick={() => setIsMobileOpen(false)}
 				/>
 			)}
