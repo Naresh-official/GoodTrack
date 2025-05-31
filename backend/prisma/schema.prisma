@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      Role     @default(viewer)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Good {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  @db.Text
+  category    String
+  quantity    Int
+  price       Decimal  @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  logs        Log[]
+
+  @@map("goods")
+}
+
+model Log {
+  id          Int      @id @default(autoincrement())
+  goodId      Int      @map("good_id")
+  oldQuantity Int      @map("old_quantity")
+  newQuantity Int      @map("new_quantity")
+  changedAt   DateTime @default(now()) @map("changed_at")
+  good        Good     @relation(fields: [goodId], references: [id], onDelete: Cascade)
+
+  @@map("logs")
+}
+
+enum Role {
+  admin
+  staff
+  viewer
+}
