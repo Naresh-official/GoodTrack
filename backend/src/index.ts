@@ -1,10 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { authRouter } from './routes/auth.js';
-import { goodsRouter } from './routes/goods.js';
-import { logsRouter } from './routes/logs.js';
-import { usersRouter } from './routes/users.js';
+import { initDatabase } from './config/database.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Load environment variables
@@ -15,6 +12,9 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Initialize database
+initDatabase().catch(console.error);
 
 // Routes
 app.use('/api/auth', authRouter);
