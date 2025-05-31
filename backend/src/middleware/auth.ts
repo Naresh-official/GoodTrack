@@ -1,65 +1,68 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { prisma } from '../lib/prisma.js';
-import { AppError } from './errorHandler.js';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { pool } from "../config/database.js";
+import { AppError } from "./errorHandler.js";
 
 interface JwtPayload {
-  userId: number;
+	userId: number;
 }
 
 declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: number;
-        role: 'admin' | 'staff' | 'viewer';
-      };
-    }
-  }
+	namespace Express {
+		interface Request {
+			user?: {
+				id: number;
+				role: "admin" | "staff" | "viewer";
+			};
+		}
+	}
 }
 
 export const authenticate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction
 ) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      throw new AppError(401, 'No token provided');
-    }
+	try {
+		const token =
+			req.headers.authorization?.split(" ")[1] || req.cookies.token;
 
-    const { userId } = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    ) as JwtPayload;
+		if (!token) {
+			throw new AppError(401, "No token provided");
+		}
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, role: true },
-    });
+		const { userId } = jwt.verify(
+			token,
+			process.env.JWT_SECRET!
+		) as JwtPayload;
 
-    if (!user) {
-      throw new AppError(401, 'Invalid token');
-    }
+		const [users] = await pool.execute(
+			"SELECT id, role FROM users WHERE id = ?",
+			[userId]
+		);
+		const user = (users as any[])[0];
 
-    req.user = user;
-    next();
-  } catch (error) {
-    next(new AppError(401, 'Invalid token'));
-  }
+		if (!user) {
+			throw new AppError(401, "Invalid token");
+		}
+
+		req.user = user;
+		next();
+	} catch (error) {
+		next(new AppError(401, "Invalid token"));
+	}
 };
 
-export const authorize = (...roles: ('admin' | 'staff' | 'viewer')[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return next(new AppError(401, 'Not authenticated'));
-    }
+export const authorize = (...roles: ("admin" | "staff" | "viewer")[]) => {
+	return (req: Request, res: Response, next: NextFunction) => {
+		if (!req.user) {
+			return next(new AppError(401, "Not authenticated"));
+		}
 
-    if (!roles.includes(req.user.role)) {
-      return next(new AppError(403, 'Not authorized'));
-    }
+		if (!roles.includes(req.user.role)) {
+			return next(new AppError(403, "Not authorized"));
+		}
 
-    next();
-  };
+		next();
+	};
 };

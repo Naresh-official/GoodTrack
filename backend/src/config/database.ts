@@ -1,27 +1,25 @@
-import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 export const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  maxIdle: 10,
-  idleTimeout: 60000,
-  queueLimit: 0
+	host: process.env.DB_HOST || "localhost",
+	user: process.env.DB_USER || "root",
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_NAME,
+	waitForConnections: true,
+	connectionLimit: 10,
+	maxIdle: 10,
+	idleTimeout: 60000,
+	queueLimit: 0,
 });
 
-// Database initialization function
 export async function initDatabase() {
-  try {
-    const connection = await pool.getConnection();
-    
-    // Create users table
-    await connection.execute(`
+	try {
+		const connection = await pool.getConnection();
+
+		await connection.execute(`
       CREATE TABLE IF NOT EXISTS users (
         id INT PRIMARY KEY AUTO_INCREMENT,
         username VARCHAR(255) UNIQUE NOT NULL,
@@ -32,8 +30,7 @@ export async function initDatabase() {
       )
     `);
 
-    // Create goods table
-    await connection.execute(`
+		await connection.execute(`
       CREATE TABLE IF NOT EXISTS goods (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL,
@@ -42,12 +39,11 @@ export async function initDatabase() {
         quantity INT NOT NULL,
         price DECIMAL(10, 2) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP NULL
       )
     `);
 
-    // Create logs table
-    await connection.execute(`
+		await connection.execute(`
       CREATE TABLE IF NOT EXISTS logs (
         id INT PRIMARY KEY AUTO_INCREMENT,
         good_id INT NOT NULL,
@@ -58,23 +54,10 @@ export async function initDatabase() {
       )
     `);
 
-    // Create trigger for logging quantity changes
-    await connection.execute(`
-      CREATE TRIGGER IF NOT EXISTS log_quantity_changes
-      AFTER UPDATE ON goods
-      FOR EACH ROW
-      BEGIN
-        IF OLD.quantity != NEW.quantity THEN
-          INSERT INTO logs (good_id, old_quantity, new_quantity)
-          VALUES (NEW.id, OLD.quantity, NEW.quantity);
-        END IF;
-      END
-    `);
-
-    connection.release();
-    console.log('Database initialized successfully');
-  } catch (error) {
-    console.error('Error initializing database:', error);
-    throw error;
-  }
+		connection.release();
+		console.log("Database initialized successfully");
+	} catch (error) {
+		console.error("Error initializing database:", error);
+		throw error;
+	}
 }
