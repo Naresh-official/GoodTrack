@@ -3,6 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { initDatabase } from './config/database.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import authRouter from './routes/auth.js';
+import goodsRouter from './routes/goods.js';
+import logsRouter from './routes/logs.js';
+import usersRouter from './routes/users.js';
 
 // Load environment variables
 dotenv.config();
