@@ -9,9 +9,9 @@ import GoodDetailsPage from "./components/pages/goods/GoodDetailsPage";
 import GoodsListPage from "./components/pages/goods/GoodsListPage";
 import EditGoodPage from "./components/pages/goods/EditGoodPage";
 import AddGoodPage from "./components/pages/goods/AddGoodPage";
-import LogsPage from "./components/pages/logs/LogsPage";
 import UsersPage from "./components/pages/users/UsersPage";
 import { Layout } from "./components/layout/Layout";
+import LogsPage from "./components/pages/log/logsPage";
 
 const router = createBrowserRouter([
 	{
